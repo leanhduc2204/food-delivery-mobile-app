@@ -1,7 +1,12 @@
+import { LoginSchema, RegisterFormValues, RegisterSchema } from "@/lib/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+
+import { useLoginMutation, useRegisterMutation } from "@/hooks/useAuth";
 import { useAuthStore } from "@/store/authStore";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -14,20 +19,54 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
-  const { user, isAuthenticated, login, register, logout, isLoading } =
-    useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const loginMutation = useLoginMutation();
+  const registerMutation = useRegisterMutation();
+
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
-  const handleAuth = async () => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    clearErrors,
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(isLogin ? LoginSchema : RegisterSchema) as any,
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  // Clear errors and reset visibility when switching modes
+  useEffect(() => {
+    clearErrors();
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+  }, [isLogin]);
+
+  const onSubmit = async (data: RegisterFormValues) => {
     if (isLogin) {
-      await login(email);
+      await loginMutation.mutateAsync({
+        email: data.email,
+        password: data.password,
+      });
     } else {
-      await register(name, email);
+      await registerMutation.mutateAsync({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      });
     }
   };
+
+  const isLoading = loginMutation.isPending || registerMutation.isPending;
 
   if (isLoading) {
     return (
@@ -56,39 +95,123 @@ export default function ProfileScreen() {
 
         <View className="w-full">
           {!isLogin && (
-            <View className="bg-gray-100 p-4 rounded-xl mb-4">
-              <TextInput
-                placeholder="Full Name"
-                value={name}
-                onChangeText={setName}
-                className="text-base text-gray-900"
-              />
+            <View className="mb-4">
+              <View className="bg-gray-100 p-4 rounded-xl">
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      placeholder="Full Name"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      className="text-base text-gray-900"
+                    />
+                  )}
+                />
+              </View>
+              {errors.name && (
+                <Text className="text-red-500 text-sm mt-1 ml-1">
+                  {errors.name.message}
+                </Text>
+              )}
             </View>
           )}
 
-          <View className="bg-gray-100 p-4 rounded-xl mb-4">
-            <TextInput
-              placeholder="Email Address"
-              value={email}
-              onChangeText={setEmail}
-              className="text-base text-gray-900"
-              autoCapitalize="none"
-              keyboardType="email-address"
-            />
+          <View className="mb-4">
+            <View className="bg-gray-100 p-4 rounded-xl">
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    placeholder="Email Address"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    className="text-base text-gray-900"
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                  />
+                )}
+              />
+            </View>
+            {errors.email && (
+              <Text className="text-red-500 text-sm mt-1 ml-1">
+                {errors.email.message}
+              </Text>
+            )}
           </View>
 
-          {isLogin && (
-            <View className="bg-gray-100 p-4 rounded-xl mb-6">
-              <TextInput
-                placeholder="Password"
-                secureTextEntry
-                className="text-base text-gray-900"
+          <View className={`mb-${isLogin ? 6 : 4}`}>
+            <View className="bg-gray-100 p-4 rounded-xl flex-row items-center justify-between">
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    placeholder="Password"
+                    secureTextEntry={!showPassword}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    className="text-base text-gray-900 flex-1 mr-2"
+                  />
+                )}
               />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <FontAwesome
+                  name={showPassword ? "eye" : "eye-slash"}
+                  size={20}
+                  color="gray"
+                />
+              </TouchableOpacity>
+            </View>
+            {errors.password && (
+              <Text className="text-red-500 text-sm mt-1 ml-1">
+                {errors.password.message}
+              </Text>
+            )}
+          </View>
+
+          {!isLogin && (
+            <View className="mb-6">
+              <View className="bg-gray-100 p-4 rounded-xl flex-row items-center justify-between">
+                <Controller
+                  control={control}
+                  name="confirmPassword"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      placeholder="Confirm Password"
+                      secureTextEntry={!showConfirmPassword}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      className="text-base text-gray-900 flex-1 mr-2"
+                    />
+                  )}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <FontAwesome
+                    name={showConfirmPassword ? "eye" : "eye-slash"}
+                    size={20}
+                    color="gray"
+                  />
+                </TouchableOpacity>
+              </View>
+              {errors.confirmPassword && (
+                <Text className="text-red-500 text-sm mt-1 ml-1">
+                  {errors.confirmPassword.message}
+                </Text>
+              )}
             </View>
           )}
 
           <TouchableOpacity
-            onPress={handleAuth}
+            onPress={handleSubmit(onSubmit)}
             className="bg-orange-500 py-4 rounded-xl items-center shadow-lg mb-6"
           >
             <Text className="text-white font-bold text-lg">
