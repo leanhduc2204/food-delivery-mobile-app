@@ -1,107 +1,136 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Stack } from "expo-router";
-import { ScrollView, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CategoryCard from "@/components/common/CategoryCard";
 import RestaurantCard from "@/components/restaurant/RestaurantCard";
-
-const CATEGORIES = [
-  { id: "1", name: "Pizza", image: require("@/assets/images/icon.png") },
-  { id: "2", name: "Burger", image: require("@/assets/images/icon.png") },
-  { id: "3", name: "Sushi", image: require("@/assets/images/icon.png") },
-  { id: "4", name: "Asian", image: require("@/assets/images/icon.png") },
-];
-
-const RESTAURANTS = [
-  {
-    id: "1",
-    name: "The Burger Joint",
-    rating: 4.8,
-    categories: ["Burgers", "American"],
-    deliveryTime: "15-25 min",
-    imageUrl:
-      "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800&q=80",
-  },
-  {
-    id: "2",
-    name: "Sushi Master",
-    rating: 4.9,
-    categories: ["Japanese", "Sushi"],
-    deliveryTime: "30-45 min",
-    imageUrl:
-      "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&q=80",
-  },
-  {
-    id: "3",
-    name: "Pizza Paradise",
-    rating: 4.5,
-    categories: ["Italian", "Pizza"],
-    deliveryTime: "20-30 min",
-    imageUrl:
-      "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80",
-  },
-];
+import { useCategories } from "@/hooks/useCategories";
+import { useRestaurants } from "@/hooks/useRestaurants";
+import { ChevronRight, Filter, MapPin, Search } from "lucide-react-native";
 
 export default function HomeScreen() {
+  const { data: restaurants, isLoading, error } = useRestaurants();
+  const {
+    data: categories,
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useCategories();
+
+  if (isLoading || categoriesLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#f97316" />
+      </View>
+    );
+  }
+
+  if (error || categoriesError) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-red-500">
+          Failed to load restaurants or categories
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View className="px-4 pt-4 pb-2">
-          <Text className="text-gray-500 text-sm">Deliver to</Text>
-          <View className="flex-row items-center">
-            <Text className="text-xl font-bold text-gray-900 mr-2">
-              New York, USA
-            </Text>
-            <FontAwesome name="chevron-down" size={14} color="#f97316" />
-          </View>
-        </View>
 
+      {/* Header */}
+      <View className="bg-white px-4 pb-4 pt-2">
+        <View className="flex-row items-center">
+          <MapPin color="#8BC34A" size={20} />
+          <Text className="ml-2 font-medium text-gray-700">New York, USA</Text>
+          <ChevronRight color="#8BC34A" size={20} />
+        </View>
         {/* Search Bar */}
-        <View className="px-4 py-4">
-          <View className="bg-gray-100 flex-row items-center px-4 py-3 rounded-xl border border-gray-200">
-            <FontAwesome name="search" size={20} color="gray" />
+        <View className="mt-4 flex-row">
+          <View className="flex-1 flex-row items-center rounded-full bg-gray-100 px-4 py-3">
+            <Search color="#888" size={20} />
             <TextInput
-              placeholder="Restaurants, food, drinks"
-              className="flex-1 ml-3 text-base text-gray-700"
+              className="ml-3 flex-1 text-gray-700"
+              placeholder="Search for restaurants or dishes..."
             />
-            <FontAwesome name="sliders" size={20} color="gray" />
           </View>
+          <TouchableOpacity className="ml-3 rounded-full bg-green-500 p-3">
+            <Filter color="white" size={20} />
+          </TouchableOpacity>
         </View>
+      </View>
 
-        {/* Categories */}
-        <View className="pl-4 pb-6">
-          <ScrollView
+      <ScrollView
+        className="flex-1 bg-gray-50"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="mt-6 pb-6 pl-4">
+          <Text className="mb-4 text-2xl font-bold text-gray-800">
+            Categories
+          </Text>
+          <FlatList
+            data={categories}
+            renderItem={({ item }) => <CategoryCard name={item.name} />}
+            keyExtractor={(item) => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
-            className="overflow-visible"
-          >
-            {CATEGORIES.map((cat, index) => (
-              <CategoryCard
-                key={cat.id}
-                name={cat.name}
-                image={cat.image}
-                isSelected={index === 0}
-              />
-            ))}
-          </ScrollView>
+          />
         </View>
 
-        {/* Featured Header */}
-        <View className="px-4 mb-4 flex-row justify-between items-center">
-          <Text className="text-xl font-bold text-gray-900">
-            Featured Restaurants
-          </Text>
-          <Text className="text-orange-500 text-sm font-bold">See all</Text>
+        <View className="mt-6">
+          <View className="mb-4 flex-row items-center justify-between px-4">
+            <Text className="text-2xl font-bold text-gray-800">
+              Featured Restaurants
+            </Text>
+            <TouchableOpacity>
+              <Text className="font-medium text-green-600">See All</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View className="pb-6 pl-4">
+            <FlatList
+              data={restaurants}
+              renderItem={({ item }) => (
+                <RestaurantCard
+                  key={item.id}
+                  id={item.id}
+                  name={item.name}
+                  categories={item.categories || []}
+                  imageUrl={item.image}
+                />
+              )}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
         </View>
 
-        {/* Mobile Cards */}
-        <View className="px-4 pb-20">
-          {RESTAURANTS.map((restaurant) => (
-            <RestaurantCard key={restaurant.id} {...restaurant} />
-          ))}
+        <View className="mt-6">
+          <View className="mb-4 flex-row items-center justify-between px-4">
+            <Text className="text-2xl font-bold text-gray-800">
+              Popular Dishes
+            </Text>
+            <TouchableOpacity>
+              <Text className="font-medium text-green-600">See All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* <FlatList
+            data={popularDishes}
+            renderItem={renderPopularDish}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          /> */}
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -249,7 +249,7 @@ export default function ProfileScreen() {
             />
             <View className="absolute bottom-0 right-0 bg-green-500 w-6 h-6 rounded-full border-2 border-white" />
           </View>
-          <Text className="text-2xl font-bold text-gray-900 mt-4">
+          <Text className="text-2xl font-bold text-gray-900 mt-4 capitalize">
             {user?.name}
           </Text>
           <Text className="text-gray-500">{user?.email}</Text>

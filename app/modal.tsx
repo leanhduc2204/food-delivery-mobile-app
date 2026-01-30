@@ -6,63 +6,62 @@ import { StatusBar } from "expo-status-bar";
 import { FlatList, Platform, Text, TouchableOpacity, View } from "react-native";
 
 export default function CartScreen() {
-  const { items, removeItem, getTotalPrice, clearCart, restaurantId } =
+  const { cartItems, removeItem, getTotalPrice, clearCart, restaurantId } =
     useCartStore();
   const { addOrder } = useOrderStore();
   const router = useRouter();
   const total = getTotalPrice();
 
   const handlePlaceOrder = () => {
-    if (items.length === 0 || !restaurantId) return;
+    if (cartItems.length === 0 || !restaurantId) return;
 
-    addOrder(items, total, restaurantId);
+    addOrder(cartItems, total, restaurantId);
     clearCart();
 
-    // Use replace to prevent going back to cart from success
     router.replace("/order-success");
   };
 
   return (
     <View className="flex-1 bg-white">
-      <View className="p-4 border-b border-gray-100 flex-row justify-between items-center">
+      <View className="flex-row items-center justify-between border-b border-gray-100 p-4">
         <Text className="text-xl font-bold">Your Cart</Text>
         <TouchableOpacity onPress={() => clearCart()}>
-          <Text className="text-red-500 text-sm">Clear</Text>
+          <Text className="text-sm text-red-500">Clear</Text>
         </TouchableOpacity>
       </View>
 
-      {items.length === 0 ? (
+      {cartItems.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <Text className="text-gray-500 text-lg">Your cart is empty</Text>
+          <Text className="text-lg text-gray-500">Your cart is empty</Text>
           <TouchableOpacity onPress={() => router.back()} className="mt-4">
-            <Text className="text-orange-500 font-bold">Start Ordering</Text>
+            <Text className="font-bold text-orange-500">Start Ordering</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <FlatList
-          data={items}
+          data={cartItems}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16 }}
           renderItem={({ item }) => (
-            <View className="flex-row items-center justify-between py-4 border-b border-gray-100">
-              <View className="flex-row items-center flex-1">
-                <Text className="text-orange-500 font-bold mr-3">
+            <View className="flex-row items-center justify-between border-b border-gray-100 py-4">
+              <View className="flex-1 flex-row items-center">
+                <Text className="mr-3 font-bold text-orange-500">
                   {item.quantity}x
                 </Text>
                 <View className="flex-1">
-                  <Text className="font-bold text-gray-800 text-base">
+                  <Text className="text-base font-bold text-gray-800">
                     {item.name}
                   </Text>
-                  <Text className="text-gray-500 text-sm">${item.price}</Text>
+                  <Text className="text-sm text-gray-500">${item.price}</Text>
                 </View>
               </View>
               <View className="flex-row items-center">
-                <Text className="font-bold text-gray-800 mr-4">
+                <Text className="mr-4 font-bold text-gray-800">
                   ${(item.price * item.quantity).toFixed(2)}
                 </Text>
                 <TouchableOpacity
                   onPress={() => removeItem(item.id)}
-                  className="bg-gray-100 p-2 rounded-full"
+                  className="rounded-full bg-gray-100 p-2"
                 >
                   <FontAwesome name="minus" size={12} color="gray" />
                 </TouchableOpacity>
@@ -72,19 +71,19 @@ export default function CartScreen() {
         />
       )}
 
-      {items.length > 0 && (
-        <View className="p-5 border-t border-gray-100 bg-white shadow-lg pb-10">
-          <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-gray-500 text-lg">Total</Text>
+      {cartItems.length > 0 && (
+        <View className="border-t border-gray-100 bg-white p-5 pb-10 shadow-lg">
+          <View className="mb-6 flex-row items-center justify-between">
+            <Text className="text-lg text-gray-500">Total</Text>
             <Text className="text-2xl font-bold text-gray-900">
               ${total.toFixed(2)}
             </Text>
           </View>
           <TouchableOpacity
             onPress={handlePlaceOrder}
-            className="bg-orange-500 py-4 rounded-xl items-center shadow-md"
+            className="items-center rounded-xl bg-orange-500 py-4 shadow-md"
           >
-            <Text className="text-white font-bold text-xl">Place Order</Text>
+            <Text className="text-xl font-bold text-white">Place Order</Text>
           </TouchableOpacity>
         </View>
       )}
