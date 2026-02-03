@@ -3,7 +3,14 @@ import { useOrderStore } from "@/store/orderStore";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { FlatList, Platform, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function CartScreen() {
   const {
@@ -54,11 +61,17 @@ export default function CartScreen() {
                 <Text className="mr-3 font-bold text-orange-500">
                   {item.quantity}x
                 </Text>
-                <View className="flex-1">
-                  <Text className="text-base font-bold text-gray-800">
-                    {item.name}
-                  </Text>
-                  <Text className="text-sm text-gray-500">${item.price}</Text>
+                <View className="flex-1 flex-row items-center">
+                  <Image
+                    source={{ uri: item.imageUrl }}
+                    className="h-14 w-14 rounded-full"
+                  />
+                  <View className="ml-2">
+                    <Text className="text-base font-bold text-gray-800">
+                      {item.name}
+                    </Text>
+                    <Text className="text-sm text-gray-500">${item.price}</Text>
+                  </View>
                 </View>
               </View>
               <View className="flex-row items-center">
