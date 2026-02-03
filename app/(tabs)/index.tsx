@@ -8,15 +8,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import CategoryCard from "@/components/common/CategoryCard";
 import RestaurantCard from "@/components/restaurant/RestaurantCard";
 import { useGlobalCategories } from "@/hooks/useGlobalCategories";
 import { useRestaurants } from "@/hooks/useRestaurants";
 import { ChevronRight, Filter, MapPin, Search } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const { data: restaurants, isLoading, error } = useRestaurants();
   const {
     data: globalCategories,
@@ -43,7 +44,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
       <Stack.Screen options={{ headerShown: false }} />
 
       <ScrollView
@@ -138,6 +139,6 @@ export default function HomeScreen() {
           /> */}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

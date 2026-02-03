@@ -16,9 +16,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
   const { user, isAuthenticated, logout } = useAuthStore();
   const loginMutation = useLoginMutation();
   const registerMutation = useRegisterMutation();
@@ -70,7 +71,7 @@ export default function ProfileScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-white">
+      <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color="#f97316" />
       </View>
     );
@@ -78,15 +79,18 @@ export default function ProfileScreen() {
 
   if (!isAuthenticated) {
     return (
-      <SafeAreaView className="flex-1 bg-white p-5 justify-center">
-        <View className="items-center mb-10">
-          <View className="bg-orange-100 p-4 rounded-full mb-4">
+      <View
+        className="flex-1 justify-center bg-white p-5"
+        style={{ paddingTop: insets.top }}
+      >
+        <View className="mb-10 items-center">
+          <View className="mb-4 rounded-full bg-orange-100 p-4">
             <FontAwesome name="user" size={40} color="#f97316" />
           </View>
           <Text className="text-3xl font-bold text-gray-900">
             {isLogin ? "Welcome Back" : "Create Account"}
           </Text>
-          <Text className="text-gray-500 mt-2 text-center">
+          <Text className="mt-2 text-center text-gray-500">
             {isLogin
               ? "Sign in to continue ordering"
               : "Join us to order your favorite food"}
@@ -96,7 +100,7 @@ export default function ProfileScreen() {
         <View className="w-full">
           {!isLogin && (
             <View className="mb-4">
-              <View className="bg-gray-100 p-4 rounded-xl">
+              <View className="rounded-xl bg-gray-100 p-4">
                 <Controller
                   control={control}
                   name="name"
@@ -112,7 +116,7 @@ export default function ProfileScreen() {
                 />
               </View>
               {errors.name && (
-                <Text className="text-red-500 text-sm mt-1 ml-1">
+                <Text className="ml-1 mt-1 text-sm text-red-500">
                   {errors.name.message}
                 </Text>
               )}
@@ -120,7 +124,7 @@ export default function ProfileScreen() {
           )}
 
           <View className="mb-4">
-            <View className="bg-gray-100 p-4 rounded-xl">
+            <View className="rounded-xl bg-gray-100 p-4">
               <Controller
                 control={control}
                 name="email"
@@ -138,14 +142,14 @@ export default function ProfileScreen() {
               />
             </View>
             {errors.email && (
-              <Text className="text-red-500 text-sm mt-1 ml-1">
+              <Text className="ml-1 mt-1 text-sm text-red-500">
                 {errors.email.message}
               </Text>
             )}
           </View>
 
           <View className={`mb-${isLogin ? 6 : 4}`}>
-            <View className="bg-gray-100 p-4 rounded-xl flex-row items-center justify-between">
+            <View className="flex-row items-center justify-between rounded-xl bg-gray-100 p-4">
               <Controller
                 control={control}
                 name="password"
@@ -156,7 +160,7 @@ export default function ProfileScreen() {
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
-                    className="text-base text-gray-900 flex-1 mr-2"
+                    className="mr-2 flex-1 text-base text-gray-900"
                   />
                 )}
               />
@@ -169,7 +173,7 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
             {errors.password && (
-              <Text className="text-red-500 text-sm mt-1 ml-1">
+              <Text className="ml-1 mt-1 text-sm text-red-500">
                 {errors.password.message}
               </Text>
             )}
@@ -177,7 +181,7 @@ export default function ProfileScreen() {
 
           {!isLogin && (
             <View className="mb-6">
-              <View className="bg-gray-100 p-4 rounded-xl flex-row items-center justify-between">
+              <View className="flex-row items-center justify-between rounded-xl bg-gray-100 p-4">
                 <Controller
                   control={control}
                   name="confirmPassword"
@@ -188,7 +192,7 @@ export default function ProfileScreen() {
                       onBlur={onBlur}
                       onChangeText={onChange}
                       value={value}
-                      className="text-base text-gray-900 flex-1 mr-2"
+                      className="mr-2 flex-1 text-base text-gray-900"
                     />
                   )}
                 />
@@ -203,7 +207,7 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
               </View>
               {errors.confirmPassword && (
-                <Text className="text-red-500 text-sm mt-1 ml-1">
+                <Text className="ml-1 mt-1 text-sm text-red-500">
                   {errors.confirmPassword.message}
                 </Text>
               )}
@@ -212,9 +216,9 @@ export default function ProfileScreen() {
 
           <TouchableOpacity
             onPress={handleSubmit(onSubmit)}
-            className="bg-orange-500 py-4 rounded-xl items-center shadow-lg mb-6"
+            className="mb-6 items-center rounded-xl bg-orange-500 py-4 shadow-lg"
           >
-            <Text className="text-white font-bold text-lg">
+            <Text className="text-lg font-bold text-white">
               {isLogin ? "Sign In" : "Sign Up"}
             </Text>
           </TouchableOpacity>
@@ -227,60 +231,60 @@ export default function ProfileScreen() {
               {isLogin
                 ? "Don't have an account? "
                 : "Already have an account? "}
-              <Text className="text-orange-500 font-bold">
+              <Text className="font-bold text-orange-500">
                 {isLogin ? "Sign Up" : "Sign In"}
               </Text>
             </Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
       <ScrollView className="flex-1">
         {/* Header */}
-        <View className="p-5 items-center border-b border-gray-100">
+        <View className="items-center border-b border-gray-100 p-5">
           <View className="relative">
             <Image
               source={{ uri: user?.avatar }}
-              className="w-24 h-24 rounded-full"
+              className="h-24 w-24 rounded-full"
             />
-            <View className="absolute bottom-0 right-0 bg-green-500 w-6 h-6 rounded-full border-2 border-white" />
+            <View className="absolute bottom-0 right-0 h-6 w-6 rounded-full border-2 border-white bg-green-500" />
           </View>
-          <Text className="text-2xl font-bold text-gray-900 mt-4 capitalize">
+          <Text className="mt-4 text-2xl font-bold capitalize text-gray-900">
             {user?.name}
           </Text>
           <Text className="text-gray-500">{user?.email}</Text>
         </View>
 
         {/* Stats */}
-        <View className="flex-row justify-around py-6 border-b border-gray-100">
+        <View className="flex-row justify-around border-b border-gray-100 py-6">
           <View className="items-center">
             <Text className="text-xl font-bold text-gray-900">12</Text>
-            <Text className="text-gray-500 text-sm">Orders</Text>
+            <Text className="text-sm text-gray-500">Orders</Text>
           </View>
           <View className="items-center">
             <Text className="text-xl font-bold text-gray-900">4</Text>
-            <Text className="text-gray-500 text-sm">favorites</Text>
+            <Text className="text-sm text-gray-500">favorites</Text>
           </View>
           <View className="items-center">
             <Text className="text-xl font-bold text-gray-900">$142</Text>
-            <Text className="text-gray-500 text-sm">Saved</Text>
+            <Text className="text-sm text-gray-500">Saved</Text>
           </View>
         </View>
 
         {/* Menu Options */}
         <View className="p-5">
-          <Text className="text-lg font-bold text-gray-900 mb-4">Account</Text>
+          <Text className="mb-4 text-lg font-bold text-gray-900">Account</Text>
 
           <TouchableOpacity
             onPress={() => router.push("/(tabs)/orders")}
-            className="flex-row items-center justify-between py-4 border-b border-gray-100"
+            className="flex-row items-center justify-between border-b border-gray-100 py-4"
           >
             <View className="flex-row items-center">
-              <View className="bg-orange-100 p-2 rounded-lg mr-4">
+              <View className="mr-4 rounded-lg bg-orange-100 p-2">
                 <FontAwesome name="list-alt" size={20} color="#f97316" />
               </View>
               <Text className="text-base font-bold text-gray-700">
@@ -290,9 +294,9 @@ export default function ProfileScreen() {
             <FontAwesome name="chevron-right" size={14} color="gray" />
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row items-center justify-between py-4 border-b border-gray-100">
+          <TouchableOpacity className="flex-row items-center justify-between border-b border-gray-100 py-4">
             <View className="flex-row items-center">
-              <View className="bg-orange-100 p-2 rounded-lg mr-4">
+              <View className="mr-4 rounded-lg bg-orange-100 p-2">
                 <FontAwesome name="credit-card" size={20} color="#f97316" />
               </View>
               <Text className="text-base font-bold text-gray-700">
@@ -302,9 +306,9 @@ export default function ProfileScreen() {
             <FontAwesome name="chevron-right" size={14} color="gray" />
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row items-center justify-between py-4 border-b border-gray-100">
+          <TouchableOpacity className="flex-row items-center justify-between border-b border-gray-100 py-4">
             <View className="flex-row items-center">
-              <View className="bg-orange-100 p-2 rounded-lg mr-4">
+              <View className="mr-4 rounded-lg bg-orange-100 p-2">
                 <FontAwesome name="map-marker" size={20} color="#f97316" />
               </View>
               <Text className="text-base font-bold text-gray-700">
@@ -316,10 +320,10 @@ export default function ProfileScreen() {
 
           <TouchableOpacity
             onPress={logout}
-            className="flex-row items-center justify-between py-4 mt-4"
+            className="mt-4 flex-row items-center justify-between py-4"
           >
             <View className="flex-row items-center">
-              <View className="bg-red-100 p-2 rounded-lg mr-4">
+              <View className="mr-4 rounded-lg bg-red-100 p-2">
                 <FontAwesome name="sign-out" size={20} color="red" />
               </View>
               <Text className="text-base font-bold text-red-500">Log Out</Text>
@@ -327,6 +331,6 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

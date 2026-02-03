@@ -1,6 +1,17 @@
 import { CartItem, useCartStore } from "@/store/cartStore";
 import { Stack } from "expo-router";
-import { Minus, Plus, X } from "lucide-react-native";
+import {
+  ChevronRight,
+  Clock,
+  CreditCard,
+  MapPin,
+  Minus,
+  Plus,
+  Tag,
+  Truck,
+  X,
+} from "lucide-react-native";
+import { useState } from "react";
 import {
   FlatList,
   Image,
@@ -10,9 +21,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function CartScreen() {
+  const insets = useSafeAreaInsets();
   const {
     items: cartItems,
     restaurant,
@@ -20,9 +32,20 @@ export default function CartScreen() {
     decreaseQty,
     removeItem,
     updateSpecialInstructions,
+    totalPrice,
   } = useCartStore();
 
-  console.log("cartItems", JSON.stringify(cartItems, null, 2));
+  // State for promo code
+  const [promoCode, setPromoCode] = useState("");
+  const [discountApplied, setDiscountApplied] = useState(false);
+  const [deliveryOption, setDeliveryOption] = useState("standard");
+
+  // Apply promo code
+  const applyPromoCode = () => {
+    if (promoCode.toUpperCase() === "FOOD10") {
+      setDiscountApplied(true);
+    }
+  };
 
   const renderCartItem = ({ item }: { item: CartItem }) => {
     return (
@@ -82,7 +105,7 @@ export default function CartScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50" style={{ paddingTop: insets.top }}>
       <Stack.Screen options={{ headerShown: false }} />
       <View className="p-4">
         <Text className="text-xl font-bold text-gray-800">Your Cart</Text>
@@ -99,7 +122,157 @@ export default function CartScreen() {
             showsVerticalScrollIndicator={false}
           />
         </View>
+
+        {/* Promo Code */}
+        <View className="mt-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+          <Text className="mb-3 text-lg font-bold text-gray-800">
+            Apply Promo Code
+          </Text>
+          <View className="flex-row">
+            <TextInput
+              className="flex-1 rounded-l-lg border border-gray-200 px-4 py-3 text-gray-700"
+              placeholder="Enter promo code"
+              value={promoCode}
+              onChangeText={setPromoCode}
+            />
+            <TouchableOpacity
+              className={`rounded-r-lg px-6 py-3 ${discountApplied ? "bg-gray-300" : "bg-green-500"}`}
+              disabled={discountApplied}
+              onPress={applyPromoCode}
+            >
+              <Text
+                className={`font-bold ${discountApplied ? "text-gray-500" : "text-white"}`}
+              >
+                {discountApplied ? "Applied" : "Apply"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {!discountApplied && (
+            <Text className="mt-2 text-sm text-green-600">
+              Try "FOOD10" for 10% off
+            </Text>
+          )}
+        </View>
+
+        {/* Delivery Options */}
+        <View className="mt-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+          <Text className="mb-3 text-lg font-bold text-gray-800">
+            Delivery Options
+          </Text>
+
+          <TouchableOpacity
+            className={`flex-row items-center rounded-lg border p-3 ${deliveryOption === "standard" ? "border-green-500 bg-green-50" : "border-gray-200"}`}
+            onPress={() => setDeliveryOption("standard")}
+          >
+            <Truck
+              color={deliveryOption === "standard" ? "#4CAF50" : "#9CA3AF"}
+              size={20}
+            />
+            <View className="ml-3 flex-1">
+              <Text className="font-medium text-gray-800">
+                Standard Delivery
+              </Text>
+              <Text className="text-sm text-gray-500">30-45 min • $2.99</Text>
+            </View>
+            {deliveryOption === "standard" && (
+              <View className="h-5 w-5 items-center justify-center rounded-full bg-green-500">
+                <View className="h-2 w-2 rounded-full bg-white"></View>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className={`mt-3 flex-row items-center rounded-lg border p-3 ${deliveryOption === "express" ? "border-green-500 bg-green-50" : "border-gray-200"}`}
+            onPress={() => setDeliveryOption("express")}
+          >
+            <Clock
+              color={deliveryOption === "express" ? "#4CAF50" : "#9CA3AF"}
+              size={20}
+            />
+            <View className="ml-3 flex-1">
+              <Text className="font-medium text-gray-800">
+                Express Delivery
+              </Text>
+              <Text className="text-sm text-gray-500">15-25 min • $5.99</Text>
+            </View>
+            {deliveryOption === "express" && (
+              <View className="h-5 w-5 items-center justify-center rounded-full bg-green-500">
+                <View className="h-2 w-2 rounded-full bg-white"></View>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Delivery Address */}
+        <View className="mt-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+          <Text className="mb-3 text-lg font-bold text-gray-800">
+            Delivery Address
+          </Text>
+          <TouchableOpacity className="flex-row items-center rounded-lg bg-gray-50 p-3">
+            <MapPin color="#4CAF50" size={20} />
+            <View className="ml-3 flex-1">
+              <Text className="font-medium text-gray-800">Home</Text>
+              <Text className="text-sm text-gray-500">
+                123 Main Street, Apartment 4B
+              </Text>
+            </View>
+            <ChevronRight color="#9CA3AF" size={20} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Payment Method */}
+        <View className="mb-4 mt-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+          <Text className="mb-3 text-lg font-bold text-gray-800">
+            Payment Method
+          </Text>
+          <TouchableOpacity className="flex-row items-center rounded-lg bg-gray-50 p-3">
+            <CreditCard color="#4CAF50" size={20} />
+            <View className="ml-3 flex-1">
+              <Text className="font-medium text-gray-800">Credit Card</Text>
+              <Text className="text-sm text-gray-500">**** **** **** 1234</Text>
+            </View>
+            <ChevronRight color="#9CA3AF" size={20} />
+          </TouchableOpacity>
+        </View>
       </ScrollView>
-    </SafeAreaView>
+
+      {/* Order Summary */}
+      <View className="border-t border-gray-200 bg-white p-4">
+        <View className="mb-4">
+          <View className="mb-2 flex-row justify-between">
+            <Text className="text-gray-600">Subtotal</Text>
+            <Text className="text-gray-800">${totalPrice().toFixed(2)}</Text>
+          </View>
+
+          <View className="mb-2 flex-row justify-between">
+            <Text className="text-gray-600">Delivery Fee</Text>
+            <Text className="text-gray-800">$2.99</Text>
+          </View>
+
+          {discountApplied && (
+            <View className="mb-2 flex-row justify-between">
+              <View className="flex-row items-center">
+                <Tag color="#4CAF50" size={16} />
+                <Text className="ml-1 text-green-600">Discount</Text>
+              </View>
+              <Text className="text-green-600">$1.00</Text>
+            </View>
+          )}
+
+          <View className="mt-3 flex-row justify-between border-t border-gray-200 pt-3">
+            <Text className="text-lg font-bold text-gray-800">Total</Text>
+            <Text className="text-lg font-bold text-green-600">
+              ${(totalPrice() + 2.99 - 1).toFixed(2)}
+            </Text>
+          </View>
+        </View>
+
+        <TouchableOpacity className="items-center rounded-full bg-green-500 py-4">
+          <Text className="text-lg font-bold text-white">
+            Proceed to Checkout
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }

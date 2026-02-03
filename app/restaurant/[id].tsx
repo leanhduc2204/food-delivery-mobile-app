@@ -30,6 +30,7 @@ export default function RestaurantDetailScreen() {
 
   const {
     items: cartItems,
+    restaurant: cartRestaurant,
     addItem,
     totalItems,
     totalPrice,
@@ -235,7 +236,7 @@ export default function RestaurantDetailScreen() {
       </ScrollView>
 
       {/* Floating Cart Button */}
-      {totalItems() > 0 && (
+      {totalItems() > 0 && cartRestaurant?.id === restaurant?.id && (
         <View className="absolute bottom-8 left-5 right-5">
           <TouchableOpacity
             onPress={() => router.push("/modal")}

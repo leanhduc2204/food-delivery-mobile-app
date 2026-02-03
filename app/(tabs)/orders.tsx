@@ -8,15 +8,15 @@ export default function OrdersScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="p-4 bg-white border-b border-gray-100">
+      <View className="border-b border-gray-100 bg-white p-4">
         <Text className="text-2xl font-bold text-gray-900">My Orders</Text>
       </View>
 
       {orders.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <Text className="text-gray-500 text-lg">No orders yet</Text>
+          <Text className="text-lg text-gray-500">No orders yet</Text>
           <Link href="/(tabs)" className="mt-4">
-            <Text className="text-orange-500 font-bold">Start Ordering</Text>
+            <Text className="font-bold text-orange-500">Start Ordering</Text>
           </Link>
         </View>
       ) : (
@@ -25,25 +25,25 @@ export default function OrdersScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16 }}
           renderItem={({ item }) => (
-            <View className="bg-white p-4 rounded-2xl border border-gray-100 mb-4 shadow-sm">
-              <View className="flex-row justify-between items-center mb-2">
-                <Text className="text-gray-900 font-bold text-lg">
+            <View className="mb-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+              <View className="mb-2 flex-row items-center justify-between">
+                <Text className="text-lg font-bold text-gray-900">
                   Order #{item.id}
                 </Text>
-                <Text className="text-gray-500 text-sm">
+                <Text className="text-sm text-gray-500">
                   {new Date(item.date).toLocaleDateString()}
                 </Text>
               </View>
-              <Text className="text-gray-500 mb-2">
+              <Text className="mb-2 text-gray-500">
                 {item.items.length} items • ${item.total.toFixed(2)}
               </Text>
-              <View className="flex-row justify-between items-center mt-2">
-                <View className="bg-green-100 px-3 py-1 rounded-full">
-                  <Text className="text-green-700 font-bold text-xs">
+              <View className="mt-2 flex-row items-center justify-between">
+                <View className="rounded-full bg-green-100 px-3 py-1">
+                  <Text className="text-xs font-bold text-green-700">
                     {item.status}
                   </Text>
                 </View>
-                <Text className="text-orange-500 font-bold">View Details</Text>
+                <Text className="font-bold text-orange-500">View Details</Text>
               </View>
             </View>
           )}
