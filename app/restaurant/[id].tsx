@@ -41,6 +41,8 @@ export default function RestaurantDetailScreen() {
       name: item.name,
       price: item.price,
       restaurantId: id as string,
+      imageUrl: item.imageUrl,
+      description: item.description,
     });
   };
 
@@ -58,11 +60,7 @@ export default function RestaurantDetailScreen() {
     <View className="mb-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
       <View className="flex-row">
         <Image
-          source={{
-            uri:
-              item.imageUrl ??
-              "https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=2372&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          }}
+          source={{ uri: item.imageUrl }}
           className="h-20 w-20 rounded-lg"
         />
         <View className="ml-4 flex-1">
@@ -169,12 +167,14 @@ export default function RestaurantDetailScreen() {
           </View>
 
           <View className="mt-2 flex-row flex-wrap">
-            {restaurant?.categories?.map((category, index) => (
+            {restaurant?.globalCategoryLinks?.map((link, index) => (
               <View
                 key={index}
                 className="mb-2 mr-2 rounded-full bg-green-100 px-3 py-1"
               >
-                <Text className="text-sm text-green-800">{category.name}</Text>
+                <Text className="text-sm text-green-800">
+                  {link.globalCategory.name}
+                </Text>
               </View>
             ))}
           </View>

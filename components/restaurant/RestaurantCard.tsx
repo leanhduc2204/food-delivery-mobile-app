@@ -1,4 +1,4 @@
-import { Category } from "@/hooks/useCategories";
+import { GlobalCategoryLink } from "@/hooks/useRestaurants";
 import { Link } from "expo-router";
 import { Clock, Star } from "lucide-react-native";
 import { Image, Text, TouchableOpacity, View } from "react-native";
@@ -7,7 +7,7 @@ interface RestaurantProps {
   id: string;
   name: string;
   rating?: number;
-  categories: Category[];
+  globalCategoryLinks: GlobalCategoryLink[];
   imageUrl: string;
   reviewCount?: number;
 }
@@ -17,8 +17,8 @@ export default function RestaurantCard({
   name,
   rating,
   reviewCount,
-  categories,
-  imageUrl = "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?q=80&w=2230&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  globalCategoryLinks,
+  imageUrl,
 }: RestaurantProps) {
   return (
     <Link
@@ -30,7 +30,9 @@ export default function RestaurantCard({
           rating,
           reviewCount,
           imageUrl,
-          categories: categories.map((category) => category.name).join(","),
+          globalCategoryLinks: globalCategoryLinks
+            .map((link) => link.globalCategory.name)
+            .join(","),
         },
       }}
       asChild
@@ -54,7 +56,9 @@ export default function RestaurantCard({
           </View>
           <View className="mt-3 flex-row justify-between">
             <Text className="text-gray-500">
-              {categories.map((category) => category.name).join(", ")}
+              {globalCategoryLinks
+                .map((link) => link.globalCategory.name)
+                .join(", ")}
             </Text>
             <Text className="text-gray-500">{"1 km"}</Text>
           </View>

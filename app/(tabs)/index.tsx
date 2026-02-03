@@ -12,19 +12,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import CategoryCard from "@/components/common/CategoryCard";
 import RestaurantCard from "@/components/restaurant/RestaurantCard";
-import { useCategories } from "@/hooks/useCategories";
+import { useGlobalCategories } from "@/hooks/useGlobalCategories";
 import { useRestaurants } from "@/hooks/useRestaurants";
 import { ChevronRight, Filter, MapPin, Search } from "lucide-react-native";
 
 export default function HomeScreen() {
   const { data: restaurants, isLoading, error } = useRestaurants();
   const {
-    data: categories,
-    isLoading: categoriesLoading,
-    error: categoriesError,
-  } = useCategories();
+    data: globalCategories,
+    isLoading: globalCategoriesLoading,
+    error: globalCategoriesError,
+  } = useGlobalCategories();
 
-  if (isLoading || categoriesLoading) {
+  if (isLoading || globalCategoriesLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color="#f97316" />
@@ -32,11 +32,11 @@ export default function HomeScreen() {
     );
   }
 
-  if (error || categoriesError) {
+  if (error || globalCategoriesError) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <Text className="text-red-500">
-          Failed to load restaurants or categories
+          Failed to load restaurants or global categories
         </Text>
       </View>
     );
@@ -46,39 +46,43 @@ export default function HomeScreen() {
     <SafeAreaView className="flex-1 bg-white">
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header */}
-      <View className="bg-white px-4 pb-4 pt-2">
-        <View className="flex-row items-center">
-          <MapPin color="#8BC34A" size={20} />
-          <Text className="ml-2 font-medium text-gray-700">New York, USA</Text>
-          <ChevronRight color="#8BC34A" size={20} />
-        </View>
-        {/* Search Bar */}
-        <View className="mt-4 flex-row">
-          <View className="flex-1 flex-row items-center rounded-full bg-gray-100 px-4 py-3">
-            <Search color="#888" size={20} />
-            <TextInput
-              className="ml-3 flex-1 text-gray-700"
-              placeholder="Search for restaurants or dishes..."
-            />
-          </View>
-          <TouchableOpacity className="ml-3 rounded-full bg-green-500 p-3">
-            <Filter color="white" size={20} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
       <ScrollView
         className="flex-1 bg-gray-50"
         showsVerticalScrollIndicator={false}
       >
+        {/* Header */}
+        <View className="bg-white px-4 pb-4 pt-2">
+          <View className="flex-row items-center">
+            <MapPin color="#8BC34A" size={20} />
+            <Text className="ml-2 font-medium text-gray-700">
+              New York, USA
+            </Text>
+            <ChevronRight color="#8BC34A" size={20} />
+          </View>
+          {/* Search Bar */}
+          <View className="mt-4 flex-row">
+            <View className="flex-1 flex-row items-center rounded-full bg-gray-100 px-4 py-3">
+              <Search color="#888" size={20} />
+              <TextInput
+                className="ml-3 flex-1 text-gray-700"
+                placeholder="Search for restaurants or dishes..."
+              />
+            </View>
+            <TouchableOpacity className="ml-3 rounded-full bg-green-500 p-3">
+              <Filter color="white" size={20} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <View className="mt-6 pb-6 pl-4">
           <Text className="mb-4 text-2xl font-bold text-gray-800">
             Categories
           </Text>
           <FlatList
-            data={categories}
-            renderItem={({ item }) => <CategoryCard name={item.name} />}
+            data={globalCategories}
+            renderItem={({ item }) => (
+              <CategoryCard name={item.name} emoji={item.emoji} />
+            )}
             keyExtractor={(item) => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -103,7 +107,7 @@ export default function HomeScreen() {
                   key={item.id}
                   id={item.id}
                   name={item.name}
-                  categories={item.categories || []}
+                  globalCategoryLinks={item.globalCategoryLinks || []}
                   imageUrl={item.image}
                 />
               )}
@@ -124,6 +128,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* TODO: Add popular dishes */}
           {/* <FlatList
             data={popularDishes}
             renderItem={renderPopularDish}

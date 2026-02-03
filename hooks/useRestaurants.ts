@@ -1,6 +1,7 @@
 import { api } from "@/api/axios";
 import { useQuery } from "@tanstack/react-query";
 import { Category } from "./useCategories";
+import { GlobalCategory } from "./useGlobalCategories";
 
 export interface MenuItem {
   id: string;
@@ -12,6 +13,12 @@ export interface MenuItem {
   categoryId: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface GlobalCategoryLink {
+  restaurantId: string;
+  globalCategoryId: string;
+  globalCategory: GlobalCategory;
 }
 
 export interface Restaurant {
@@ -28,6 +35,7 @@ export interface Restaurant {
   categories: Category[];
   createdAt?: string;
   updatedAt?: string;
+  globalCategoryLinks: GlobalCategoryLink[];
 }
 
 export interface Pagination {
