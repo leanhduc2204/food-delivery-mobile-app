@@ -6,16 +6,22 @@ import { StatusBar } from "expo-status-bar";
 import { FlatList, Platform, Text, TouchableOpacity, View } from "react-native";
 
 export default function CartScreen() {
-  const { cartItems, removeItem, getTotalPrice, clearCart, restaurantId } =
-    useCartStore();
+  const {
+    items: cartItems,
+    removeItem,
+    totalPrice,
+    clearCart,
+    restaurant,
+    totalItems,
+  } = useCartStore();
   const { addOrder } = useOrderStore();
   const router = useRouter();
-  const total = getTotalPrice();
+  const total = totalPrice();
 
   const handlePlaceOrder = () => {
-    if (cartItems.length === 0 || !restaurantId) return;
+    if (totalItems() === 0 || !restaurant?.id) return;
 
-    addOrder(cartItems, total, restaurantId);
+    addOrder(cartItems, total, restaurant.id);
     clearCart();
 
     router.replace("/order-success");

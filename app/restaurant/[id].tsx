@@ -28,22 +28,30 @@ export default function RestaurantDetailScreen() {
   const router = useRouter();
   const { data: restaurant, isLoading, error } = useRestaurant(id as string);
 
-  const { cartItems, addItem, getItemCount, getTotalPrice, removeItem } =
-    useCartStore();
-  const itemCount = getItemCount();
-  const totalPrice = getTotalPrice();
+  const {
+    items: cartItems,
+    addItem,
+    totalItems,
+    totalPrice,
+    removeItem,
+  } = useCartStore();
 
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   const handleAddItem = (item: MenuItem) => {
-    addItem({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      restaurantId: id as string,
-      imageUrl: item.imageUrl,
-      description: item.description,
-    });
+    addItem(
+      {
+        id: restaurant?.id ?? "",
+        name: restaurant?.name ?? "",
+      },
+      {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        imageUrl: item.imageUrl,
+        price: item.price,
+      },
+    );
   };
 
   const toggleFavorite = (itemId: string) => {
@@ -227,18 +235,18 @@ export default function RestaurantDetailScreen() {
       </ScrollView>
 
       {/* Floating Cart Button */}
-      {itemCount > 0 && (
+      {totalItems() > 0 && (
         <View className="absolute bottom-8 left-5 right-5">
           <TouchableOpacity
             onPress={() => router.push("/modal")}
             className="flex-row items-center justify-between rounded-xl bg-orange-500 p-4 shadow-lg"
           >
             <View className="rounded bg-white/20 px-2 py-1">
-              <Text className="font-bold text-white">{itemCount}</Text>
+              <Text className="font-bold text-white">{totalItems()}</Text>
             </View>
             <Text className="text-lg font-bold text-white">View Cart</Text>
             <Text className="text-lg font-bold text-white">
-              ${totalPrice.toFixed(2)}
+              ${totalPrice().toFixed(2)}
             </Text>
           </TouchableOpacity>
         </View>

@@ -1,88 +1,105 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+
+export interface Restaurant {
+  id: string;
+  name: string;
+}
 
 export interface CartItem {
   id: string;
   name: string;
+  description: string;
+  imageUrl: string;
   price: number;
   quantity: number;
-  restaurantId: string;
+  specialInstructions?: string;
 }
 
 interface CartState {
-  cartItems: CartItem[];
-  restaurantId: string | null;
-  addItem: (item: Omit<CartItem, "quantity">) => void;
+  items: CartItem[];
+  restaurant: Restaurant | null;
+  addItem: (restaurant: Restaurant, item: Omit<CartItem, "quantity">) => void;
+  increaseQty: (itemId: string) => void;
+  decreaseQty: (itemId: string) => void;
   removeItem: (itemId: string) => void;
+  updateSpecialInstructions: (
+    itemId: string,
+    specialInstructions: string,
+  ) => void;
   clearCart: () => void;
-  getTotalPrice: () => number;
-  getItemCount: () => number;
+  totalPrice: () => number;
+  totalItems: () => number;
 }
 
-export const useCartStore = create<CartState>((set, get) => ({
-  cartItems: [],
-  restaurantId: null,
+export const useCartStore = create(
+  persist<CartState>(
+    (set, get) => ({
+      restaurant: null,
+      items: [],
 
-  addItem: (product) => {
-    const { cartItems, restaurantId } = get();
+      addItem: (restaurant, item) => {
+        const { restaurant: currentRestaurant, items } = get();
+        if (currentRestaurant && currentRestaurant.id !== restaurant.id) {
+          set({ restaurant, items: [{ ...item, quantity: 1 }] });
+          return;
+        }
 
-    // Check if adding from a different restaurant
-    if (restaurantId && restaurantId !== product.restaurantId) {
-      // Ideally ask user to clear cart, for now we just clear it
-      set({
-        cartItems: [{ ...product, quantity: 1 }],
-        restaurantId: product.restaurantId,
-      });
-      return;
-    }
+        const existing = items.find((i) => i.id === item.id);
 
-    const existingItem = cartItems.find((item) => item.id === product.id);
+        if (existing) {
+          set({
+            restaurant,
+            items: items.map((i) =>
+              i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
+            ),
+          });
+        } else {
+          set({
+            restaurant,
+            items: [...items, { ...item, quantity: 1 }],
+          });
+        }
+      },
 
-    if (existingItem) {
-      set({
-        cartItems: cartItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        ),
-        restaurantId: product.restaurantId,
-      });
-    } else {
-      set({
-        cartItems: [...cartItems, { ...product, quantity: 1 }],
-        restaurantId: product.restaurantId,
-      });
-    }
-  },
+      increaseQty: (itemId) =>
+        set({
+          items: get().items.map((i) =>
+            i.id === itemId ? { ...i, quantity: i.quantity + 1 } : i,
+          ),
+        }),
 
-  removeItem: (itemId) => {
-    const { cartItems } = get();
-    const existingItem = cartItems.find((item) => item.id === itemId);
+      decreaseQty: (itemId) =>
+        set({
+          items: get().items.map((i) =>
+            i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i,
+          ),
+        }),
 
-    if (existingItem && existingItem.quantity > 1) {
-      set({
-        cartItems: cartItems.map((item) =>
-          item.id === itemId ? { ...item, quantity: item.quantity - 1 } : item,
-        ),
-      });
-    } else {
-      set({
-        cartItems: cartItems.filter((item) => item.id !== itemId),
-      });
-    }
-  },
+      removeItem: (itemId) =>
+        set({
+          items: get().items.filter((i) => i.id !== itemId),
+        }),
 
-  clearCart: () => set({ cartItems: [], restaurantId: null }),
+      clearCart: () => set({ items: [], restaurant: null }),
 
-  getTotalPrice: () => {
-    const { cartItems } = get();
-    return cartItems.reduce(
-      (total, item) => total + Number(item.price) * item.quantity,
-      0,
-    );
-  },
+      updateSpecialInstructions: (itemId, specialInstructions) =>
+        set({
+          items: get().items.map((i) =>
+            i.id === itemId ? { ...i, specialInstructions } : i,
+          ),
+        }),
 
-  getItemCount: () => {
-    const { cartItems } = get();
-    return cartItems.reduce((count, item) => count + item.quantity, 0);
-  },
-}));
+      totalPrice: () =>
+        get().items.reduce((acc, item) => acc + item.price * item.quantity, 0),
+
+      totalItems: () =>
+        get().items.reduce((acc, item) => acc + item.quantity, 0),
+    }),
+    {
+      name: "cart-store",
+      storage: createJSONStorage(() => AsyncStorage),
+    },
+  ),
+);
