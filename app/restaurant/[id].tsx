@@ -24,7 +24,7 @@ import {
 import { useState } from "react";
 
 export default function RestaurantDetailScreen() {
-  const { id, name, rating, imageUrl, reviewCount } = useLocalSearchParams();
+  const { id, name, rating, imageUrl, viewCount } = useLocalSearchParams();
   const router = useRouter();
   const { data: restaurant, isLoading, error } = useRestaurant(id as string);
 
@@ -38,6 +38,34 @@ export default function RestaurantDetailScreen() {
   } = useCartStore();
 
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
+  // Mock reviews
+  const reviews = [
+    {
+      id: 1,
+      user: "Alex Johnson",
+      rating: 5,
+      comment: "Amazing food! The carbonara was perfectly cooked.",
+      date: "2023-10-15",
+      avatar: "https://i.pravatar.cc/150?img=1",
+    },
+    {
+      id: 2,
+      user: "Maria Garcia",
+      rating: 4,
+      comment: "Great service and cozy atmosphere. Will come back!",
+      date: "2023-10-10",
+      avatar: "https://i.pravatar.cc/150?img=2",
+    },
+    {
+      id: 3,
+      user: "David Smith",
+      rating: 5,
+      comment: "Best Italian food in town. Highly recommend the tiramisu!",
+      date: "2023-10-05",
+      avatar: "https://i.pravatar.cc/150?img=3",
+    },
+  ];
 
   const handleAddItem = (item: MenuItem) => {
     addItem(
@@ -165,7 +193,7 @@ export default function RestaurantDetailScreen() {
                 {restaurant?.rating ?? rating ?? 5}
               </Text>
               <Text className="ml-1 text-gray-500">
-                ({restaurant?.reviewCount ?? reviewCount ?? 1})
+                ({restaurant?.viewCount ?? viewCount ?? 1})
               </Text>
             </View>
 
@@ -232,6 +260,62 @@ export default function RestaurantDetailScreen() {
                 No menu items available.
               </Text>
             )}
+        </View>
+
+        {/* Reviews Section */}
+        <View className="mb-6 px-4">
+          <Text className="mb-3 text-xl font-bold text-gray-800">Reviews</Text>
+          <View className="rounded-xl bg-white p-4 shadow-sm">
+            <View className="mb-3 flex-row items-center">
+              <Star color="#FFC107" fill="#FFC107" size={20} />
+              <Text className="ml-1 text-lg font-bold">
+                {restaurant?.rating ?? rating ?? 5}
+              </Text>
+              <Text className="ml-1 text-gray-500">
+                ({restaurant?.viewCount ?? viewCount ?? 1} reviews)
+              </Text>
+            </View>
+
+            {reviews.map((review, index) => (
+              <View
+                key={review.id}
+                className="mt-3 border-t border-gray-100 pt-3 first:mt-0 first:border-t-0 first:pt-0"
+                style={{
+                  borderTopWidth: index === 0 ? 0 : 1,
+                  paddingTop: index === 0 ? 0 : 12,
+                  marginTop: index === 0 ? 0 : 12,
+                }}
+              >
+                <View className="flex-row items-center">
+                  <Image
+                    source={{ uri: review.avatar }}
+                    className="h-10 w-10 rounded-full"
+                  />
+                  <View className="ml-3">
+                    <Text className="font-bold text-gray-800">
+                      {review.user}
+                    </Text>
+                    <View className="mt-1 flex-row items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          color={i < review.rating ? "#FFC107" : "#D1D5DB"}
+                          fill={i < review.rating ? "#FFC107" : "none"}
+                          size={14}
+                        />
+                      ))}
+                      <Text className="ml-2 text-xs text-gray-500">
+                        {review.date}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <Text className="ml-13 mt-2 text-gray-600">
+                  {review.comment}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
       </ScrollView>
 

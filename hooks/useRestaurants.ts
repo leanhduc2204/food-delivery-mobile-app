@@ -30,7 +30,7 @@ export interface Restaurant {
   isActive: boolean;
   image: string;
   rating?: number;
-  reviewCount?: number;
+  viewCount?: number;
   phone?: string;
   categories: Category[];
   createdAt?: string;

@@ -9,14 +9,14 @@ interface RestaurantProps {
   rating?: number;
   globalCategoryLinks: GlobalCategoryLink[];
   imageUrl: string;
-  reviewCount?: number;
+  viewCount?: number;
 }
 
 export default function RestaurantCard({
   id,
   name,
   rating,
-  reviewCount,
+  viewCount,
   globalCategoryLinks,
   imageUrl,
 }: RestaurantProps) {
@@ -28,7 +28,7 @@ export default function RestaurantCard({
           id: id || "1",
           name,
           rating,
-          reviewCount,
+          viewCount,
           imageUrl,
           globalCategoryLinks: globalCategoryLinks
             .map((link) => link.globalCategory.name)
