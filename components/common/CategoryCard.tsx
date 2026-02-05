@@ -1,12 +1,12 @@
+import { GlobalCategory } from "@/hooks/useGlobalCategories";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface CategoryProps {
-  name: string;
-  emoji?: string;
+  item: GlobalCategory;
   selected?: boolean;
 }
 
-export default function CategoryCard({ name, emoji, selected }: CategoryProps) {
+const CategoryCard = ({ item, selected }: CategoryProps) => {
   return (
     <TouchableOpacity className="mr-6 items-center">
       <View
@@ -14,14 +14,16 @@ export default function CategoryCard({ name, emoji, selected }: CategoryProps) {
           selected ? "bg-green-500" : "bg-gray-100"
         }`}
       >
-        <Text className="text-2xl">{emoji ?? "🍔"}</Text>
+        <Text className="text-2xl">{item.emoji ?? "🍔"}</Text>
       </View>
       <Text
         className={`text-center font-medium ${selected ? "text-green-600" : "text-gray-700"}`}
         numberOfLines={1}
       >
-        {name}
+        {item.name}
       </Text>
     </TouchableOpacity>
   );
-}
+};
+
+export default CategoryCard;

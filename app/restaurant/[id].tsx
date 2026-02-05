@@ -24,7 +24,7 @@ import {
 import { useState } from "react";
 
 export default function RestaurantDetailScreen() {
-  const { id, name, rating, imageUrl, viewCount } = useLocalSearchParams();
+  const { id, name, rating, image, viewCount } = useLocalSearchParams();
   const router = useRouter();
   const { data: restaurant, isLoading, error } = useRestaurant(id as string);
 
@@ -164,7 +164,7 @@ export default function RestaurantDetailScreen() {
         {/* Header Image */}
         <View className="relative h-64">
           <Image
-            source={{ uri: imageUrl as string }}
+            source={{ uri: image as string }}
             className="h-full w-full object-cover"
           />
           <View className="absolute left-4 right-4 top-12 flex-row justify-between">

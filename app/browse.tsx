@@ -1,8 +1,9 @@
+import { useGlobalCategories } from "@/hooks/useGlobalCategories";
+import { useRestaurants } from "@/hooks/useRestaurants";
 import { router } from "expo-router";
 import {
   ArrowLeft,
   Award,
-  ChevronDown,
   Clock,
   Filter,
   MapPin,
@@ -11,7 +12,7 @@ import {
   TrendingUp,
   X,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   FlatList,
   Image,
@@ -23,38 +24,41 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+const CATEGORY_ALL = "all";
+
 const BrowseScreen = () => {
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedCuisine, setSelectedCuisine] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(CATEGORY_ALL);
+
   const [selectedPriceRange, setSelectedPriceRange] = useState("All");
   const [selectedRating, setSelectedRating] = useState("All");
-  const [sortBy, setSortBy] = useState("popular");
   const [showFilters, setShowFilters] = useState(false);
 
-  // Mock categories
-  const categories = [
-    { id: "1", name: "All", icon: "🍽️" },
-    { id: "2", name: "Restaurants", icon: "🍴" },
-    { id: "3", name: "Fast Food", icon: "🍔" },
-    { id: "4", name: "Fine Dining", icon: "🍷" },
-    { id: "5", name: "Cafes", icon: "☕" },
-    { id: "6", name: "Desserts", icon: "🍰" },
-  ];
+  const {
+    data: restaurants,
+    isLoading,
+    error,
+  } = useRestaurants({
+    search: searchQuery,
+    globalCategory: selectedCategory,
+  });
+  const {
+    data: globalCategories,
+    isLoading: globalCategoriesLoading,
+    error: globalCategoriesError,
+  } = useGlobalCategories();
 
-  // Mock cuisine types
-  const cuisineTypes = [
-    "All",
-    "Italian",
-    "American",
-    "Japanese",
-    "Mexican",
-    "Chinese",
-    "Indian",
-    "Thai",
-    "Mediterranean",
-  ];
+  const categories = useMemo(() => {
+    return [
+      { id: "all", name: "All", icon: "🍽️" },
+      ...(globalCategories?.map((category) => ({
+        id: category.id,
+        name: category.name,
+        icon: category.emoji,
+      })) || []),
+    ];
+  }, [globalCategories]);
 
   // Mock price ranges
   const priceRanges = [
@@ -72,189 +76,13 @@ const BrowseScreen = () => {
     { id: "4", label: "3.5+", rating: "3.5" },
   ];
 
-  // Mock restaurants data
-  const restaurants = [
-    {
-      id: "1",
-      name: "Bella Vista Italian Bistro",
-      image:
-        "https://images.unsplash.com/photo-1712026063351-61d52c2e4abb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Q2FzdWFsJTIwZGluaW5nJTIwcmVzdGF1cmFudHxlbnwwfHwwfHx8MA%3D%3D",
-      rating: 4.7,
-      reviews: 1248,
-      deliveryTime: "25-35 min",
-      deliveryFee: "$2.99",
-      cuisine: "Italian",
-      priceRange: "$$",
-      distance: "1.2 km",
-      category: "Fine Dining",
-      featured: true,
-      promoted: false,
-    },
-    {
-      id: "2",
-      name: "Burger Palace",
-      image:
-        "https://images.unsplash.com/photo-1648580852350-3098af89f110?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8RGVsaWNpb3VzJTIwZm9vZCUyMG1lYWx8ZW58MHx8MHx8fDA%3D",
-      rating: 4.5,
-      reviews: 892,
-      deliveryTime: "20-30 min",
-      deliveryFee: "$1.99",
-      cuisine: "American",
-      priceRange: "$",
-      distance: "0.8 km",
-      category: "Fast Food",
-      featured: false,
-      promoted: true,
-    },
-    {
-      id: "3",
-      name: "Sushi Heaven",
-      image:
-        "https://images.unsplash.com/photo-1718808094109-4d24bd3ac5de?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8TW9kZXJuJTIwdXJiYW4lMjByZXN0YXVyYW50fGVufDB8fDB8fHww",
-      rating: 4.9,
-      reviews: 1567,
-      deliveryTime: "30-40 min",
-      deliveryFee: "$3.99",
-      cuisine: "Japanese",
-      priceRange: "$$$",
-      distance: "1.5 km",
-      category: "Fine Dining",
-      featured: true,
-      promoted: false,
-    },
-    {
-      id: "4",
-      name: "Taco Fiesta",
-      image:
-        "https://images.unsplash.com/photo-1726533765356-2608b035ff6b?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8T3V0ZG9vciUyMHBhdGlvJTIwZGluaW5nfGVufDB8fDB8fHww",
-      rating: 4.6,
-      reviews: 723,
-      deliveryTime: "15-25 min",
-      deliveryFee: "$1.99",
-      cuisine: "Mexican",
-      priceRange: "$",
-      distance: "0.6 km",
-      category: "Fast Food",
-      featured: false,
-      promoted: false,
-    },
-    {
-      id: "5",
-      name: "Golden Dragon Chinese",
-      image:
-        "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Q2hpbmVzZSUyMHJlc3RhdXJhbnR8ZW58MHx8MHx8fDA%3D",
-      rating: 4.4,
-      reviews: 634,
-      deliveryTime: "25-35 min",
-      deliveryFee: "$2.49",
-      cuisine: "Chinese",
-      priceRange: "$$",
-      distance: "1.8 km",
-      category: "Restaurants",
-      featured: false,
-      promoted: false,
-    },
-    {
-      id: "6",
-      name: "Spice Garden Indian",
-      image:
-        "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8SW5kaWFuJTIwcmVzdGF1cmFudHxlbnwwfHwwfHx8MA%3D%3D",
-      rating: 4.8,
-      reviews: 987,
-      deliveryTime: "30-40 min",
-      deliveryFee: "$2.99",
-      cuisine: "Indian",
-      priceRange: "$$",
-      distance: "2.1 km",
-      category: "Fine Dining",
-      featured: true,
-      promoted: false,
-    },
-    {
-      id: "7",
-      name: "Cafe Milano",
-      image:
-        "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Q2FmZSUyMGludGVyaW9yfGVufDB8fDB8fHww",
-      rating: 4.3,
-      reviews: 456,
-      deliveryTime: "15-20 min",
-      deliveryFee: "$1.49",
-      cuisine: "Italian",
-      priceRange: "$$",
-      distance: "0.5 km",
-      category: "Cafes",
-      featured: false,
-      promoted: true,
-    },
-    {
-      id: "8",
-      name: "Sweet Delights Bakery",
-      image:
-        "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8QmFrZXJ5JTIwaW50ZXJpb3J8ZW58MHx8MHx8fDA%3D",
-      rating: 4.7,
-      reviews: 789,
-      deliveryTime: "20-30 min",
-      deliveryFee: "$2.49",
-      cuisine: "Desserts",
-      priceRange: "$$",
-      distance: "1.0 km",
-      category: "Desserts",
-      featured: false,
-      promoted: false,
-    },
-  ];
-
-  // Filter restaurants based on selected filters
-  const filteredRestaurants = restaurants.filter((restaurant) => {
-    const matchesSearch =
-      restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesCategory =
-      selectedCategory === "All" || restaurant.category === selectedCategory;
-    const matchesCuisine =
-      selectedCuisine === "All" || restaurant.cuisine === selectedCuisine;
-    const matchesPrice =
-      selectedPriceRange === "All" ||
-      restaurant.priceRange === selectedPriceRange;
-    const matchesRating =
-      selectedRating === "All" ||
-      (selectedRating === "4.5" && restaurant.rating >= 4.5) ||
-      (selectedRating === "4.0" && restaurant.rating >= 4.0) ||
-      (selectedRating === "3.5" && restaurant.rating >= 3.5);
-
-    return (
-      matchesSearch &&
-      matchesCategory &&
-      matchesCuisine &&
-      matchesPrice &&
-      matchesRating
-    );
-  });
-
-  // Sort restaurants
-  const sortedRestaurants = [...filteredRestaurants].sort((a, b) => {
-    switch (sortBy) {
-      case "popular":
-        return b.reviews - a.reviews;
-      case "rating":
-        return b.rating - a.rating;
-      case "distance":
-        return parseFloat(a.distance) - parseFloat(b.distance);
-      case "delivery":
-        return parseInt(a.deliveryTime) - parseInt(b.deliveryTime);
-      default:
-        return 0;
-    }
-  });
-
   const renderCategoryItem = ({ item }: { item: any }) => (
     <TouchableOpacity
-      className={`mr-4 items-center ${selectedCategory === item.name ? "opacity-100" : "opacity-60"}`}
-      onPress={() => setSelectedCategory(item.name)}
+      className={`mr-4 items-center ${selectedCategory === item.id ? "opacity-100" : "opacity-60"}`}
+      onPress={() => setSelectedCategory(item.id)}
     >
       <View
-        className={`h-14 w-14 items-center justify-center rounded-full ${selectedCategory === item.name ? "bg-green-500" : "bg-gray-100"}`}
+        className={`h-14 w-14 items-center justify-center rounded-full ${selectedCategory === item.id ? "bg-green-500" : "bg-gray-100"}`}
       >
         <Text className="text-2xl">{item.icon}</Text>
       </View>
@@ -262,25 +90,6 @@ const BrowseScreen = () => {
         className={`mt-2 text-xs ${selectedCategory === item.name ? "font-medium text-green-600" : "text-gray-600"}`}
       >
         {item.name}
-      </Text>
-    </TouchableOpacity>
-  );
-
-  const renderFilterChip = ({
-    item,
-    selected,
-    onPress,
-  }: {
-    item: any;
-    selected: boolean;
-    onPress: () => void;
-  }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      className={`mr-2 rounded-full px-3 py-1.5 ${selected ? "bg-green-500" : "bg-gray-100"}`}
-    >
-      <Text className={`text-sm ${selected ? "text-white" : "text-gray-700"}`}>
-        {item}
       </Text>
     </TouchableOpacity>
   );
@@ -316,7 +125,7 @@ const BrowseScreen = () => {
           <View className="flex-1">
             <Text className="text-lg font-bold text-gray-800">{item.name}</Text>
             <Text className="mt-1 text-sm text-gray-500">
-              {item.cuisine} • {item.priceRange}
+              {item.globalCategoryLinks[0].globalCategory.name}
             </Text>
           </View>
           <View className="flex-row items-center rounded-full bg-green-50 px-2 py-1">
@@ -325,25 +134,27 @@ const BrowseScreen = () => {
               {item.rating}
             </Text>
             <Text className="ml-1 text-xs text-green-600">
-              ({item.reviews})
+              ({item.viewCount})
             </Text>
           </View>
         </View>
 
-        <View className="mt-3 flex-row items-center space-x-4">
+        <View className="mt-3 flex-row items-center gap-4">
           <View className="flex-row items-center">
             <Clock color="#8BC34A" size={16} />
             <Text className="ml-1 text-sm text-gray-600">
-              {item.deliveryTime}
+              {item.deliveryTime ?? "10-20 mins"}
             </Text>
           </View>
           <View className="flex-row items-center">
             <MapPin color="#8BC34A" size={16} />
-            <Text className="ml-1 text-sm text-gray-600">{item.distance}</Text>
+            <Text className="ml-1 text-sm text-gray-600">
+              {item.distance ?? "1 km"}
+            </Text>
           </View>
           <View className="flex-row items-center">
             <Text className="text-sm text-gray-600">
-              Delivery: {item.deliveryFee}
+              Delivery: {item.deliveryFee ?? "Free"}
             </Text>
           </View>
         </View>
@@ -352,8 +163,7 @@ const BrowseScreen = () => {
   );
 
   const clearAllFilters = () => {
-    setSelectedCategory("All");
-    setSelectedCuisine("All");
+    setSelectedCategory("all");
     setSelectedPriceRange("All");
     setSelectedRating("All");
     setSearchQuery("");
@@ -361,7 +171,6 @@ const BrowseScreen = () => {
 
   const hasActiveFilters =
     selectedCategory !== "All" ||
-    selectedCuisine !== "All" ||
     selectedPriceRange !== "All" ||
     selectedRating !== "All" ||
     searchQuery !== "";
@@ -423,28 +232,6 @@ const BrowseScreen = () => {
               )}
             </View>
 
-            {/* Cuisine Filter */}
-            <View className="mb-4">
-              <Text className="mb-2 text-sm font-medium text-gray-600">
-                Cuisine
-              </Text>
-              <View className="flex-row flex-wrap">
-                {cuisineTypes.map((cuisine) => (
-                  <TouchableOpacity
-                    key={cuisine}
-                    onPress={() => setSelectedCuisine(cuisine)}
-                    className={`mb-2 mr-2 rounded-full px-3 py-1.5 ${selectedCuisine === cuisine ? "bg-green-500" : "bg-gray-100"}`}
-                  >
-                    <Text
-                      className={`text-sm ${selectedCuisine === cuisine ? "text-white" : "text-gray-700"}`}
-                    >
-                      {cuisine}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
             {/* Price Range Filter */}
             <View className="mb-4">
               <Text className="mb-2 text-sm font-medium text-gray-600">
@@ -491,32 +278,10 @@ const BrowseScreen = () => {
           </View>
         )}
 
-        {/* Sort & Results */}
-        <View className="mb-2 mt-4 flex-row items-center justify-between px-4">
-          <Text className="text-gray-600">
-            {sortedRestaurants.length}{" "}
-            {sortedRestaurants.length === 1 ? "restaurant" : "restaurants"}{" "}
-            found
-          </Text>
-          <TouchableOpacity className="flex-row items-center">
-            <Text className="mr-1 text-sm text-gray-600">Sort by:</Text>
-            <Text className="mr-1 text-sm font-medium text-green-600">
-              {sortBy === "popular"
-                ? "Popular"
-                : sortBy === "rating"
-                  ? "Rating"
-                  : sortBy === "distance"
-                    ? "Distance"
-                    : "Delivery Time"}
-            </Text>
-            <ChevronDown color="#4CAF50" size={16} />
-          </TouchableOpacity>
-        </View>
-
         {/* Restaurant List */}
-        <View className="px-4 pb-4">
-          {sortedRestaurants.length > 0 ? (
-            sortedRestaurants.map((restaurant) => (
+        <View className="mt-4 px-4 pb-4">
+          {restaurants?.length && restaurants?.length > 0 ? (
+            restaurants?.map((restaurant) => (
               <View key={restaurant.id}>
                 {renderRestaurantCard({ item: restaurant })}
               </View>

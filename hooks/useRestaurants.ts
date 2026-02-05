@@ -51,11 +51,28 @@ export interface RestaurantsResponse {
   pagination: Pagination;
 }
 
-export const useRestaurants = () => {
+interface UseRestaurantsParams {
+  search?: string;
+  globalCategory?: string;
+  page?: number;
+  limit?: number;
+}
+
+export const useRestaurants = (params?: UseRestaurantsParams) => {
   return useQuery({
-    queryKey: ["restaurants"],
+    queryKey: ["restaurants", params],
     queryFn: async () => {
-      const response = await api.get<RestaurantsResponse>("/restaurants");
+      const response = await api.get<RestaurantsResponse>("/restaurants", {
+        params: {
+          ...(params?.search && { search: params.search.trim() }),
+          ...(params?.globalCategory &&
+            params.globalCategory !== "all" && {
+              globalCategory: params.globalCategory,
+            }),
+          page: params?.page,
+          limit: params?.limit,
+        },
+      });
       return response.data.data;
     },
   });

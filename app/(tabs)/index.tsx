@@ -2,7 +2,6 @@ import { Stack } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -10,17 +9,12 @@ import {
 } from "react-native";
 
 import CategoryCard from "@/components/common/CategoryCard";
+import DishCard from "@/components/common/DishCard";
 import RestaurantCard from "@/components/restaurant/RestaurantCard";
 import { useGlobalCategories } from "@/hooks/useGlobalCategories";
 import { useRestaurants } from "@/hooks/useRestaurants";
 import { useRouter } from "expo-router";
-import {
-  ChevronRight,
-  Filter,
-  MapPin,
-  Search,
-  ShoppingCart,
-} from "lucide-react-native";
+import { ChevronRight, Filter, MapPin, Search } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const HomeScreen = () => {
@@ -68,26 +62,6 @@ const HomeScreen = () => {
         "https://images.unsplash.com/photo-1726533765356-2608b035ff6b?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8T3V0ZG9vciUyMHBhdGlvJTIwZGluaW5nfGVufDB8fDB8fHww",
     },
   ];
-
-  const renderPopularDish = ({ item }: { item: any }) => (
-    <TouchableOpacity className="mb-4 mr-4 w-[190px] rounded-2xl bg-white shadow-sm">
-      <Image
-        source={{ uri: item.image }}
-        className="h-32 w-full rounded-t-2xl"
-        resizeMode="cover"
-      />
-      <View className="p-3">
-        <Text className="font-bold text-gray-800">{item.name}</Text>
-        <Text className="mt-1 text-sm text-gray-500">{item.restaurant}</Text>
-        <View className="mt-2 flex-row items-center justify-between">
-          <Text className="font-bold text-green-600">{item.price}</Text>
-          <TouchableOpacity className="rounded-full bg-green-500 p-2">
-            <ShoppingCart color="white" size={16} />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
 
   if (isLoading || globalCategoriesLoading) {
     return (
@@ -145,9 +119,7 @@ const HomeScreen = () => {
           </Text>
           <FlatList
             data={globalCategories}
-            renderItem={({ item }) => (
-              <CategoryCard name={item.name} emoji={item.emoji} />
-            )}
+            renderItem={({ item }) => <CategoryCard item={item} />}
             keyExtractor={(item) => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -169,13 +141,7 @@ const HomeScreen = () => {
             <FlatList
               data={restaurants}
               renderItem={({ item }) => (
-                <RestaurantCard
-                  key={item.id}
-                  id={item.id}
-                  name={item.name}
-                  globalCategoryLinks={item.globalCategoryLinks || []}
-                  imageUrl={item.image}
-                />
+                <RestaurantCard key={item.id} item={item} />
               )}
               keyExtractor={(item) => item.id}
               horizontal
@@ -197,7 +163,7 @@ const HomeScreen = () => {
           <View className="pb-6 pl-4">
             <FlatList
               data={popularDishes}
-              renderItem={renderPopularDish}
+              renderItem={({ item }) => <DishCard item={item} />}
               keyExtractor={(item) => item.id}
               horizontal
               showsHorizontalScrollIndicator={false}
