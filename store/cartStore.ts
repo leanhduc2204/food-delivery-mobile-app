@@ -72,9 +72,11 @@ export const useCartStore = create(
 
       decreaseQty: (itemId) =>
         set({
-          items: get().items.map((i) =>
-            i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i,
-          ),
+          items: get()
+            .items.map((i) =>
+              i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i,
+            )
+            .filter((i) => i.quantity > 0),
         }),
 
       removeItem: (itemId) =>

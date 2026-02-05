@@ -15,11 +15,11 @@ import {
 const CartModal = () => {
   const {
     items: cartItems,
-    removeItem,
     totalPrice,
     clearCart,
     restaurant,
     totalItems,
+    decreaseQty,
   } = useCartStore();
   const { addOrder } = useOrderStore();
   const router = useRouter();
@@ -79,7 +79,7 @@ const CartModal = () => {
                   ${(item.price * item.quantity).toFixed(2)}
                 </Text>
                 <TouchableOpacity
-                  onPress={() => removeItem(item.id)}
+                  onPress={() => decreaseQty(item.id)}
                   className="rounded-full bg-gray-100 p-2"
                 >
                   <FontAwesome name="minus" size={12} color="gray" />
