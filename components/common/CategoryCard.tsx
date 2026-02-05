@@ -1,8 +1,8 @@
-import { GlobalCategory } from "@/hooks/useGlobalCategories";
+import { CategoryCardItem } from "@/components/browse/CategoryCard";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface CategoryProps {
-  item: GlobalCategory;
+  item: CategoryCardItem;
   selected?: boolean;
 }
 

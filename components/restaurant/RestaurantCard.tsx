@@ -9,7 +9,7 @@ const RestaurantCard = ({ item }: { item: Restaurant }) => {
       href={{
         pathname: "/restaurant/[id]" as any,
         params: {
-          id: item.id || "1",
+          id: item.id,
           name: item.name,
           rating: item.rating,
           viewCount: item.viewCount,
