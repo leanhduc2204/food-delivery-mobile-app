@@ -5,7 +5,6 @@ import {
   Image,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -14,6 +13,7 @@ import CategoryCard from "@/components/common/CategoryCard";
 import RestaurantCard from "@/components/restaurant/RestaurantCard";
 import { useGlobalCategories } from "@/hooks/useGlobalCategories";
 import { useRestaurants } from "@/hooks/useRestaurants";
+import { useRouter } from "expo-router";
 import {
   ChevronRight,
   Filter,
@@ -23,8 +23,9 @@ import {
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function HomeScreen() {
+const HomeScreen = () => {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { data: restaurants, isLoading, error } = useRestaurants();
   const {
     data: globalCategories,
@@ -69,7 +70,7 @@ export default function HomeScreen() {
   ];
 
   const renderPopularDish = ({ item }: { item: any }) => (
-    <TouchableOpacity className="mb-4 mr-4 w-[180px] rounded-2xl bg-white shadow-sm">
+    <TouchableOpacity className="mb-4 mr-4 w-[190px] rounded-2xl bg-white shadow-sm">
       <Image
         source={{ uri: item.image }}
         className="h-32 w-full rounded-t-2xl"
@@ -118,13 +119,16 @@ export default function HomeScreen() {
         </View>
         {/* Search Bar */}
         <View className="mt-4 flex-row">
-          <View className="flex-1 flex-row items-center rounded-full bg-gray-100 px-4 py-3">
+          <TouchableOpacity
+            className="flex-1 flex-row items-center rounded-full bg-gray-100 px-4 py-3"
+            onPress={() => router.push("/browse")}
+            activeOpacity={0.7}
+          >
             <Search color="#888" size={20} />
-            <TextInput
-              className="ml-3 flex-1 text-gray-700"
-              placeholder="Search for restaurants or dishes..."
-            />
-          </View>
+            <Text className="ml-3 flex-1 text-gray-500">
+              Search for restaurants or dishes...
+            </Text>
+          </TouchableOpacity>
           <TouchableOpacity className="ml-3 rounded-full bg-green-500 p-3">
             <Filter color="white" size={20} />
           </TouchableOpacity>
@@ -147,6 +151,7 @@ export default function HomeScreen() {
             keyExtractor={(item) => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 8 }}
           />
         </View>
 
@@ -202,4 +207,6 @@ export default function HomeScreen() {
       </ScrollView>
     </View>
   );
-}
+};
+
+export default HomeScreen;

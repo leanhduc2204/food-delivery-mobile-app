@@ -18,7 +18,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function ProfileScreen() {
+const ProfileScreen = () => {
   const insets = useSafeAreaInsets();
   const { user, isAuthenticated, logout } = useAuthStore();
   const loginMutation = useLoginMutation();
@@ -333,4 +333,6 @@ export default function ProfileScreen() {
       </ScrollView>
     </View>
   );
-}
+};
+
+export default ProfileScreen;

@@ -12,7 +12,7 @@ import {
   View,
 } from "react-native";
 
-export default function CartScreen() {
+const CartModal = () => {
   const {
     items: cartItems,
     removeItem,
@@ -110,4 +110,6 @@ export default function CartScreen() {
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </View>
   );
-}
+};
+
+export default CartModal;

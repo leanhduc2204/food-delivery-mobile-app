@@ -3,7 +3,7 @@ import { Link } from "expo-router";
 import { FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function OrdersScreen() {
+const OrdersScreen = () => {
   const { orders } = useOrderStore();
 
   return (
@@ -51,4 +51,6 @@ export default function OrdersScreen() {
       )}
     </SafeAreaView>
   );
-}
+};
+
+export default OrdersScreen;

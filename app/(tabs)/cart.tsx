@@ -23,7 +23,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function CartScreen() {
+const CartScreen = () => {
   const insets = useSafeAreaInsets();
   const {
     items: cartItems,
@@ -275,4 +275,6 @@ export default function CartScreen() {
       </View>
     </View>
   );
-}
+};
+
+export default CartScreen;
